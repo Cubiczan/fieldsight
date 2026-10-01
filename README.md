@@ -15,7 +15,7 @@ The shot list, narration, and what each click must show are in [docs/DEMO.md](do
 3. **Open load center** → ESCALATE. `ticket.create` runs and the text quotes the ticket id.
 4. **Vest on, cover off** → still ESCALATE, but the ticket and the text change because the vest is on and the call is plumbing.
 
-The screen recording belongs at `docs/fieldsight-demo.mp4`. That file is not committed yet. Record from the script, then commit the mp4 at that path.
+**Demo video:** [`docs/fieldsight-demo.mp4`](docs/fieldsight-demo.mp4) · YouTube: _pending public upload_
 
 ## Run locally
 
@@ -71,7 +71,7 @@ backend/app/store.py  S3 or local mock
 backend/lambda_handler.py
 public/samples/       synthetic jobsite fixtures
 docs/DEMO.md           three-minute recording script
-docs/fieldsight-demo.mp4   reserved; commit after recording
+docs/fieldsight-demo.mp4   ~3 min demo (screenshots + captions)
 docs/REPORT.md        technical report
 ```
 
