@@ -2,7 +2,7 @@
 
 About three minutes. One take, four fixture clicks, no upload. **Recording:** [`docs/fieldsight-demo.mp4`](./fieldsight-demo.mp4).
 
-**YouTube (Public):** _pending upload — will be linked here._
+**YouTube (Public):** [https://youtu.be/KivhSEd1OTs](https://youtu.be/KivhSEd1OTs)
 
 ## Before you hit record
 
@@ -46,4 +46,4 @@ If a shot misses one of those, click the same card again. The run is determinist
 
 ## After the recording
 
-Demo file: [`docs/fieldsight-demo.mp4`](./fieldsight-demo.mp4) (H.264 slideshow with live app screenshots + narration captions). YouTube link filled after public upload.
+Demo file: [`docs/fieldsight-demo.mp4`](./fieldsight-demo.mp4) (H.264 slideshow with live app screenshots + narration captions). YouTube (Public): [https://youtu.be/KivhSEd1OTs](https://youtu.be/KivhSEd1OTs)

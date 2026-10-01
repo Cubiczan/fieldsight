@@ -15,7 +15,7 @@ The shot list, narration, and what each click must show are in [docs/DEMO.md](do
 3. **Open load center** → ESCALATE. `ticket.create` runs and the text quotes the ticket id.
 4. **Vest on, cover off** → still ESCALATE, but the ticket and the text change because the vest is on and the call is plumbing.
 
-**Demo video:** [`docs/fieldsight-demo.mp4`](docs/fieldsight-demo.mp4) · YouTube: _pending public upload_
+**Demo video:** [`docs/fieldsight-demo.mp4`](docs/fieldsight-demo.mp4) · YouTube: [https://youtu.be/KivhSEd1OTs](https://youtu.be/KivhSEd1OTs)
 
 ## Run locally
 
