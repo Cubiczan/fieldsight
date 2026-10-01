@@ -1,0 +1,10 @@
+# Direct dependencies, pinned. Install with: pip install -r backend/requirements.txt
+opencv-python-headless==5.0.0.93
+numpy==2.5.3
+fastapi==0.142.2
+uvicorn==0.54.0
+python-multipart==0.0.32
+boto3==1.43.106
+pydantic==2.13.5
+pytest==9.1.1
+httpx==0.28.1
