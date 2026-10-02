@@ -8,6 +8,16 @@ A Jev decision aid can read those measurements after OpenCV and suggest CLEAR, H
 
 Built by Cubiczan / Sam Desigan for the OpenCV AI Competition 2026 (powered by AWS), Agentic Vision Award.
 
+<!-- product-screenshots:start -->
+## Product screenshots
+
+Inspection start screen with synthetic jobsite fixtures and the photo-upload option. These fixtures are demo scenes, not real inspection results.
+
+![fieldsight product interface](docs/screenshots/product-overview.png)
+
+Captured from the [live UI](https://fieldsight-five.vercel.app) on October 2, 2026. No payment, generation, or other action was submitted to create this capture.
+<!-- product-screenshots:end -->
+
 ## Demo in about three minutes
 
 The shot list, narration, and what each click must show are in [docs/DEMO.md](docs/DEMO.md).
