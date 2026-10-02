@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { AgentTrace } from "@/components/agent-trace";
+import { DecisionAid } from "@/components/decision-aid";
 import { errorMessage, type Inspection } from "@/lib/inspection";
 import { SAMPLES, TRADES, type Sample, type Trade } from "@/lib/samples";
 import { cn } from "@/lib/utils";
@@ -322,6 +323,8 @@ export function Inspector() {
                 : "Measurements are in. The policy check has not spoken yet."}
             </p>
           </section>
+
+          {policyVisible && result.agent.jev ? <DecisionAid aid={result.agent.jev} /> : null}
 
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
             <div className="flex flex-col gap-3">

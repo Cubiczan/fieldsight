@@ -9,6 +9,7 @@
     "start": "next start -p 43123",
     "lint": "eslint",
     "test": "cd backend && ../.venv/bin/pytest -q",
+    "test:jev": "node --import ./scripts/jev-test-register.mjs --experimental-strip-types --test src/lib/jev/jev.test.ts",
     "generate:samples": ".venv/bin/python backend/scripts/generate_samples.py"
   },
   "dependencies": {

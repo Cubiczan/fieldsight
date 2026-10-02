@@ -1,3 +1,4 @@
+import type { FieldSightAid } from "@/lib/jev/types";
 import type { Trade } from "@/lib/samples";
 
 export type AgentStep = {
@@ -41,6 +42,7 @@ export type Inspection = {
     clearance_note: string;
     note_source: string;
     ticket: { id: string; priority: string; title: string; summary: string; status: string } | null;
+    jev: FieldSightAid;
   };
 };
 
