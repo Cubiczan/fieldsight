@@ -16,6 +16,8 @@ Each fixture sets the trade itself. You do not need to press Electrical, HVAC, o
 
 Click **Show all** on shots 2–4 once the big decision word is on screen, so the trace does not eat the clock. On shot 1, let the steps appear on their own (about four seconds).
 
+A **Decision aid** card sits under the banner. With no Jev key it is a local heuristic and the big CLEAR / HOLD / ESCALATE word does not change. Do not describe that card as a certainty.
+
 ## Shot list
 
 | Time | On screen | Do this | Say this |

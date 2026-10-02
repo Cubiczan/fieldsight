@@ -2,7 +2,9 @@
 
 OpenCV hands this module measurements only. Thresholds and tool choice live
 here, so a different vest coverage or panel edge density selects a different
-tool sequence. An optional Bedrock call can phrase the clearance note. It
+tool sequence. An optional Jev call reads that structured state and returns a
+CLEAR / HOLD / ESCALATE decision aid. The office policy stays the gate unless
+JEV_PRIMARY=1. An optional Bedrock call can phrase the clearance note. It
 cannot change the decision.
 """
 
@@ -11,6 +13,8 @@ from __future__ import annotations
 import hashlib
 import os
 from typing import Any
+
+from app.jev import build_state, evaluate_jobsite
 
 # A torso-sized orange region. A hard hat or a small cone stays under this.
 VEST_COVERAGE_MIN = 0.04
@@ -31,6 +35,7 @@ def run_agent(
     trade: str,
     image_uri: str,
     storage_mode: str,
+    prior_tickets: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     trade = trade if trade in TRADE_LABELS else "electrical"
     steps: list[dict[str, Any]] = []
@@ -71,7 +76,24 @@ def run_agent(
         label=label,
     )
     steps.append(policy)
-    decision = policy["output"]["decision"]
+    policy_decision = policy["output"]["decision"]
+    jev_state = build_state(
+        trade=trade,
+        vest_present=vest_present,
+        vest_coverage=findings["ppe_vest"]["coverage"],
+        vest_threshold=VEST_COVERAGE_MIN,
+        panel_state=panel_state,
+        edge_density=edge_density,
+        open_edge_threshold=OPEN_EDGE_DENSITY_MIN,
+        label_present=label_present,
+        prior_tickets=prior_tickets,
+        opencv_version=str(findings["opencv"]["version"]),
+        panel_candidates=len(findings["electrical_panel"]["candidates"]),
+        label_regions=len(findings["warning_label"]["regions"]),
+    )
+    jev = evaluate_jobsite(jev_state, policy_decision=policy_decision)
+    steps.append(_jev_step(jev))
+    decision = jev["applied_decision"]
 
     inspection_id = _inspection_id(image_uri, trade, findings)
     ticket_payload = None
@@ -83,6 +105,11 @@ def run_agent(
             vest_present=vest_present,
             label_present=label_present,
             rules=policy["output"]["rules"],
+            because=(
+                "the Jev decision aid set ESCALATE"
+                if jev["authority"] == "jev"
+                else "policy.check returned ESCALATE"
+            ),
         )
         steps.append(ticket_step)
         ticket_payload = ticket_step["output"]
@@ -92,9 +119,9 @@ def run_agent(
                 phase="action",
                 tool="ticket.create",
                 reason=(
-                    "Policy returned CLEAR, so no office ticket is opened."
+                    "The gate returned CLEAR, so no office ticket is opened."
                     if decision == "CLEAR"
-                    else "Policy returned HOLD. The crew can correct this on site, so no urgent ticket is opened."
+                    else "The gate returned HOLD. The crew can correct this on site, so no urgent ticket is opened."
                 ),
             )
         )
@@ -123,6 +150,7 @@ def run_agent(
         label_present=label_present,
         ticket=ticket_payload,
         steps=steps,
+        jev=jev,
     )
     steps.append(note_step)
 
@@ -132,6 +160,7 @@ def run_agent(
         "trade": trade,
         "image_uri": image_uri,
         "storage": storage_mode,
+        "jev": jev,
         "interpretation": {
             "vest_present": vest_present,
             "vest_coverage": findings["ppe_vest"]["coverage"],
@@ -303,6 +332,25 @@ def _policy_check(
     )
 
 
+def _jev_step(jev: dict[str, Any]) -> dict[str, Any]:
+    if jev["calibrated"] and jev["confidence"] is not None:
+        confidence = f"calibrated confidence {float(jev['confidence']):.0%}"
+    else:
+        confidence = "local heuristic, not a calibrated score"
+    return _executed(
+        phase="decision",
+        tool="jev.decide",
+        title="Ask the Jev decision aid",
+        detail=f"Decision aid {jev['decision']} ({confidence}). {jev['note']}",
+        tool_input={
+            "source": jev["source"],
+            "model": jev["model"],
+            "questions": ["decision", "open_panel", "vest_missing", "urgency"],
+        },
+        output=jev,
+    )
+
+
 def _ticket_create(
     *,
     trade: str,
@@ -311,6 +359,7 @@ def _ticket_create(
     vest_present: bool,
     label_present: bool,
     rules: list[dict[str, str]],
+    because: str,
 ) -> dict[str, Any]:
     digest = hashlib.sha256(f"{inspection_id}:{trade}".encode()).hexdigest()[:4].upper()
     ticket_id = f"FS-{digest}"
@@ -330,7 +379,7 @@ def _ticket_create(
         phase="action",
         tool="ticket.create",
         title="Open an urgent office ticket",
-        detail=f"Created {ticket_id} because policy.check returned ESCALATE.",
+        detail=f"Created {ticket_id} because {because}.",
         tool_input={"priority": "urgent", "trade": trade, "image_uri": image_uri, "rules": [rule["id"] for rule in rules]},
         output={
             "id": ticket_id,
@@ -414,6 +463,7 @@ def _clearance_write(
     label_present: bool,
     ticket: dict[str, Any] | None,
     steps: list[dict[str, Any]],
+    jev: dict[str, Any],
 ) -> dict[str, Any]:
     density_text = "n/a" if edge_density is None else f"{edge_density:.1%}"
     executed = [step["tool"] for step in steps if step["status"] == "executed"]
@@ -435,6 +485,7 @@ def _clearance_write(
             "Tools run: " + ", ".join(executed),
             "Tools skipped: " + (", ".join(skipped) if skipped else "none"),
             f"Ticket: {ticket['id'] if ticket else 'none'}",
+            _aid_line(jev),
             "",
             _decision_line(decision),
             "",
@@ -450,6 +501,14 @@ def _clearance_write(
         tool_input={"decision": decision, "source": source},
         output={"note": note, "source": source},
     )
+
+
+def _aid_line(jev: dict[str, Any]) -> str:
+    if jev["calibrated"] and jev["confidence"] is not None:
+        score = f"calibrated confidence {float(jev['confidence']):.0%}"
+    else:
+        score = "local heuristic, not a calibrated score"
+    return f"Decision aid: {jev['decision']} ({score}). Authority: {jev['authority']}. {jev['note']}"
 
 
 def _decision_line(decision: str) -> str:

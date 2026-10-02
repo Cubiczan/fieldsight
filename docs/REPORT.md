@@ -62,7 +62,8 @@ The agent is not a chatbot wrapped around a fixed label. OpenCV returns measurem
 | Perceive | `vision.read` | Always. Reports vest coverage, panel candidates, label regions. |
 | Perceive | `panel.measure` | Only if a panel-shaped contour exists. Compares interior Canny density to 8%. |
 | Decide | `policy.check` | Always. Maps the numbers to CLEAR, HOLD, or ESCALATE. |
-| Act | `ticket.create` | Only when the decision is ESCALATE. Otherwise the step is recorded as skipped, with the reason. |
+| Decide | `jev.decide` | Always, after the measurements. Choice, two Noul flags, and an urgency Score. A local heuristic fills in when no key is set. It does not see the photo. |
+| Act | `ticket.create` | Only when the gate is ESCALATE. Otherwise the step is recorded as skipped, with the reason. |
 | Act | `sms.draft` | Always, but the recipient and the body come from the branch. |
 | Act | `clearance.write` | Always. Records which tools ran. Optional Bedrock pass may rephrase and may not change the decision word. |
 
@@ -129,3 +130,4 @@ This is a fixture eval, not a field trial. It proves the branch. It does not mea
 - Photos of customer sites are sensitive. The local demo writes them under `var/uploads/`. A real deploy needs a retention limit, access control on the bucket, and a reason the office is allowed to keep the image.
 - Do not point this at people for surveillance. The vest measurement exists so the crew can see whether PPE is in the work photo, not to score workers.
 - If Bedrock is enabled, it may only rephrase the note. The decision has already been made from the measurements.
+- Jev, when a key is set, is a decision aid on the structured measurements. `JEV_PRIMARY=1` can set the gate only at a calibrated confidence of at least 0.70, and an open panel stays ESCALATE. The aid is not a determination that the equipment is safe to touch.
